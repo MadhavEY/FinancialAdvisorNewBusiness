@@ -1,8 +1,12 @@
-const fastify = require("fastify")({ logger: true });
+const fastify = require("fastify")({
+  logger: true
+});
 const cors = require("@fastify/cors");
 const formbody = require("@fastify/formbody");
 const multipart = require("@fastify/multipart");
-const { connectToDatabase } = require("./config/db"); //uncommnet to connect db
+const {
+  connectToDatabase
+} = require("./config/db"); //uncommnet to connect db
 
 const dotenv = require("dotenv"); // For managing environment variables
 dotenv.config(); // Load environment variables from .env file
@@ -17,7 +21,10 @@ fastify.register(multipart);
 fastify.register(routes);
 
 // Start server
-fastify.listen({ port: 8084, host: "0.0.0.0" }, async (err) => {
+fastify.listen({
+  port: 8084,
+  host: "0.0.0.0"
+}, async (err) => {
   if (err) {
     fastify.log.error(err);
     process.exit(1);

@@ -1,24 +1,24 @@
 const {
-    common
+    application
 } = require("../controllers");
 const {
     authentication,
     validation
 } = require("../middleware");
 
-async function adminRoutes(fastify, options) {
-    fastify.post(
-        "/verify-ekyc", {
+async function applicationRoutes(fastify) {
+    fastify.get(
+        "/tracker-count", {
             preHandler: [authentication, validation]
         },
-        common.ekyc
+        application.appTrackerCount
     );
     fastify.post(
-        "/verify-ckyc", {
+        "/tracker-list", {
             preHandler: [authentication, validation]
         },
-        common.ckyc
+        application.appTrackerList
     );
 }
 
-module.exports = adminRoutes;
+module.exports = applicationRoutes;
