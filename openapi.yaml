@@ -267,3 +267,185 @@ paths:
                   message:
                     type: string
                     example: "Unauthorized access."
+
+  /application/tracker-count:
+    get:
+      summary: Get status specic counts for app tracker.
+      description: Get status specic counts for app tracker.
+      operationId: appTrackerCount
+      parameters:
+        - name: authorization
+          in: header
+          required: true
+          description: Bearer token for authorization.
+          schema:
+            type: string
+            example: "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIs..."
+      requestBody:
+        required: false
+
+      responses:
+        "200":
+          description: Otp verified successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    description: HTTP status code
+                    example: 200
+                  message:
+                    type: string
+                    description: Status message
+                    example: "Data fetched successfully!"
+                  data:
+                    type: object
+                    properties:
+                      draft:
+                        type: object
+                        description: Containe draft count
+                        properties:
+                          count:
+                            type: number
+                            description: Get draft application count
+                            example: 10
+                      requirementPending:
+                        type: object
+                        description: Containe requirement pending count
+                        properties:
+                          count:
+                            type: number
+                            description: Get requirement pending application count
+                            example: 10
+                      qcUW:
+                        type: object
+                        description: Containe QC/UW count
+                        properties:
+                          count:
+                            type: number
+                            description: Get QC/UW application count
+                            example: 10
+                      decisionProvided:
+                        type: object
+                        description: Containe decision provided count
+                        properties:
+                          count:
+                            type: number
+                            description: Get decision provided application count
+                            example: 10
+        "401":
+          description: Unauthorized - Invalid token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Unauthorized access."
+
+  /application/tracker-list:
+    post:
+      summary: Application tracker list based on status
+      description: Application tracker list based on status.
+      operationId: appTrackerList
+      parameters:
+        - name: authorization
+          in: header
+          required: true
+          description: Bearer token for authorization.
+          schema:
+            type: string
+            example: "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIs..."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - statusType
+                - limit
+                - pageNo
+              properties:
+                statusType:
+                  type: number
+                  description: Status type to filter data (1-draft,2-requirementPending,3-qc,4-approved).
+                  example: 1
+                limit:
+                  type: number
+                  description: Record limit like (10,20,30,40,50,etc...)
+                  example: 20
+                pageNo:
+                  type: number
+                  description: Current page starts with 0 to n.
+                  example: 0
+                searchKeyword:
+                  type: string
+                  description: Search with application no or customer name keyword.
+                  example: "john doe"
+      responses:
+        "200":
+          description: List fetched successfully!
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    description: HTTP status code
+                    example: 200
+                  message:
+                    type: string
+                    description: Status message
+                    example: "List fetched successfully!"
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: number
+                          description: Application unique ID
+                          example: "1"
+                        application_id:
+                          type: number
+                          description: Application ID/Policy/Proposal No
+                          example: "6766647999"
+                        quote_id:
+                          type: number
+                          description: Quotation No
+                          example: "12321321321"
+                        lead_id:
+                          type: number
+                          description: Lead ID
+                          example: "1"
+                        status:
+                          type: number
+                          description: Application status like draft, QC, etc..
+                          example: "1"
+                        application_json:
+                          type: object
+                          description: Customer details object
+                          example: "{}"
+                        quote_json:
+                          type: number
+                          description: Quotation JSON Details
+                          example: "{}"
+                        requirement_json:
+                          type: number
+                          description: Medical/FInancial/PSC or Underwriting required doc upload Object
+                          example: "{}"
+        "401":
+          description: Unauthorized - Invalid token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Unauthorized access."
