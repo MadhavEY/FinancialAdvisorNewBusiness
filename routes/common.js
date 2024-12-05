@@ -8,16 +8,14 @@ const {
 
 async function adminRoutes(fastify, options) {
     fastify.post(
-        "/verify-ekyc", {
-            preHandler: [authentication, validation]
-        },
-        common.ekyc
+        "/kyc",
+        { preHandler: [authentication, validation] },
+        common.kyc
     );
     fastify.post(
-        "/verify-ckyc", {
-            preHandler: [authentication, validation]
-        },
-        common.ckyc
+        "/verify-kyc",
+        { preHandler: [authentication, validation] },
+        common.verifyKyc
     );
 }
 

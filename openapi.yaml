@@ -7,11 +7,11 @@ servers:
   - url: http://localhost:8084
     description: Development server
 paths:
-  /common/verify-ekyc:
+  /common/kyc:
     post:
       summary: Fetch KYC details
       description: Retrieves the KYC data.
-      operationId: ekyc
+      operationId: kyc
       parameters:
         - name: authorization
           in: header
@@ -57,110 +57,78 @@ paths:
                   data:
                     type: object
                     properties:
-                      Certificate:
+                      aadhaar:
                         type: object
+                        description: Aadhaar details
                         properties:
-                          CertificateData:
-                            type: object
-                            properties:
-                              KycRes:
-                                type: object
-                                properties:
-                                  code:
-                                    type: string
-                                    description: Unique KYC code
-                                    example: "42d044af1b3542c993e4f453e67e2d90"
-                                  ret:
-                                    type: string
-                                    description: Result of KYC (Y/N)
-                                    example: "Y"
-                                  ts:
-                                    type: string
-                                    description: Timestamp of KYC verification
-                                    example: "2023-08-14T12:50:55.963+05:30"
-                                  ttl:
-                                    type: string
-                                    description: Expiry timestamp of KYC
-                                    example: "2024-08-13T12:50:55"
-                                  txn:
-                                    type: string
-                                    description: Transaction ID
-                                    example: "UKC:7b4ec534ad17bf62e08f61421dde2ed320230814125036"
-                                  UidData:
-                                    type: object
-                                    properties:
-                                      tkn:
-                                        type: string
-                                        description: Encrypted token
-                                        example: "0100227408hNcQYBw1tPly5gUBmZ..."
-                                      uid:
-                                        type: string
-                                        description: Masked UID (Aadhaar)
-                                        example: "xxxxxxxx9852"
-                                      Poi:
-                                        type: object
-                                        description: Personal details
-                                        properties:
-                                          dob:
-                                            type: string
-                                            description: Date of Birth
-                                            example: "14-09-1990"
-                                          gender:
-                                            type: string
-                                            description: Gender
-                                            example: "M"
-                                          name:
-                                            type: string
-                                            description: Full Name
-                                            example: "Ketan Gopal Jangade"
-                                      Poa:
-                                        type: object
-                                        description: Address details
-                                        properties:
-                                          co:
-                                            type: string
-                                            description: Care of (C/O) details
-                                            example: "S/O Gopal Jangade"
-                                          country:
-                                            type: string
-                                            description: Country
-                                            example: "India"
-                                          dist:
-                                            type: string
-                                            description: District
-                                            example: "Nagpur"
-                                          pc:
-                                            type: integer
-                                            description: Postal code
-                                            example: 440009
-                                          state:
-                                            type: string
-                                            description: State
-                                            example: "Maharashtra"
-                                          vtc:
-                                            type: string
-                                            description: Village/Tehsil/City
-                                            example: "Hanuman Nagar S.O"
-                                      LData:
-                                        type: object
-                                        description: Local language details
-                                        properties:
-                                          name:
-                                            type: string
-                                            description: Name in local language
-                                            example: "केतन गोपाल जांगडे"
-                                          dist:
-                                            type: string
-                                            description: District in local language
-                                            example: "नागपूर"
-                                          state:
-                                            type: string
-                                            description: State in local language
-                                            example: "महाराष्ट्र"
-                                      Pht:
-                                        type: string
-                                        description: Base64 encoded photo
-                                        example: "/9j/4AAQxkZ..."
+                          aadhaar_number:
+                            type: string
+                            description: Masked Aadhaar number
+                            example: "XXXX-XXXX-1234"
+                          aadhaar_status:
+                            type: string
+                            description: Status of Aadhaar verification
+                            example: "Verified"
+                          aadhaar_holder_name:
+                            type: string
+                            description: Name of the Aadhaar holder
+                            example: "Ravi Kumar"
+                          aadhaar_verification_date:
+                            type: string
+                            description: Aadhaar verification date
+                            example: "2024-12-01"
+                          aadhaar_expiry_date:
+                            type: string
+                            description: Aadhaar expiry date
+                            example: "2034-12-01"
+                          aadhaar_issue_authority:
+                            type: string
+                            description: Issuing authority of Aadhaar
+                            example: "UIDAI"
+                          aadhaar_consent_status:
+                            type: string
+                            description: Consent status for Aadhaar data sharing
+                            example: "Granted"
+                          aadhaar_status_message:
+                            type: string
+                            description: Status message for Aadhaar verification
+                            example: "Aadhaar is verified and active."
+                      pan:
+                        type: object
+                        description: PAN details
+                        properties:
+                          pan_number:
+                            type: string
+                            description: Masked PAN number
+                            example: "ABCDE****F"
+                          pan_status:
+                            type: string
+                            description: Status of PAN verification
+                            example: "Active"
+                          pan_holder_name:
+                            type: string
+                            description: Name of the PAN holder
+                            example: "Ravi Kumar"
+                          pan_verification_date:
+                            type: string
+                            description: PAN verification date
+                            example: "2024-11-25"
+                          pan_expiry_date:
+                            type: string
+                            description: PAN expiry date
+                            example: "2030-11-25"
+                          pan_issue_authority:
+                            type: string
+                            description: Issuing authority of PAN
+                            example: "Income Tax Department"
+                          pan_consent_status:
+                            type: string
+                            description: Consent status for PAN data sharing
+                            example: "Granted"
+                          pan_status_message:
+                            type: string
+                            description: Status message for PAN verification
+                            example: "PAN is active and linked to tax records."
         "401":
           description: Unauthorized - Invalid token
           content:
@@ -172,11 +140,11 @@ paths:
                     type: string
                     example: "Unauthorized access."
 
-  /common/verify-ckyc:
+  /common/verify-kyc:
     post:
-      summary: Fetch KYC details
-      description: Retrieves the KYC data.
-      operationId: ckyc
+      summary: Check otp and Fetch KYC details
+      description: Retrieves the KYC data after varifying otp.
+      operationId: verifyKyc
       parameters:
         - name: authorization
           in: header
@@ -192,20 +160,15 @@ paths:
             schema:
               type: object
               required:
-                - kycIdentityType
-                - IdentityNumber
+                - otp
               properties:
-                kycIdentityType:
+                otp:
                   type: string
-                  description: Type of the identity used for KYC (A - Aadhaar / P - PAN).
-                  example: "A"
-                IdentityNumber:
-                  type: string
-                  description: Identity number associated with the selected type.
-                  example: "3243132568798"
+                  description: OTP to verify.
+                  example: "123456"
       responses:
         "200":
-          description: KYC data fetched successfully
+          description: Otp verified successfully
           content:
             application/json:
               schema:
@@ -218,66 +181,82 @@ paths:
                   message:
                     type: string
                     description: Status message
-                    example: "KYC data fetched successfully"
+                    example: "Otp verified successfully"
                   data:
                     type: object
                     properties:
-                      PID_DATA:
+                      aadhaar:
                         type: object
+                        description: Aadhaar details
                         properties:
-                          CKYC_NO:
+                          aadhaar_number:
                             type: string
-                            description: Central KYC number.
-                            example: "50008055039603"
-                          NAME:
+                            description: Masked Aadhaar number
+                            example: "XXXX-XXXX-1234"
+                          aadhaar_status:
                             type: string
-                            description: Full name of the individual.
-                            example: "Mr Ketan Gopal Jangade"
-                          FATHERS_NAME:
+                            description: Status of Aadhaar verification
+                            example: "Verified"
+                          aadhaar_holder_name:
                             type: string
-                            description: Name of the individual's father.
-                            example: "Mr Mahesh Jangade"
-                          AGE:
-                            type: integer
-                            description: Age of the individual.
-                            example: 33
-                          IMAGE_TYPE:
+                            description: Name of the Aadhaar holder
+                            example: "Ravi Kumar"
+                          aadhaar_verification_date:
                             type: string
-                            description: Type of the image file.
-                            example: "jpg"
-                          PHOTO:
+                            description: Aadhaar verification date
+                            example: "2024-12-01"
+                          aadhaar_expiry_date:
                             type: string
-                            description: Base64 encoded photo.
-                            example: "/9j/4AAQSkZ..."
-                          KYC_DATE:
+                            description: Aadhaar expiry date
+                            example: "2034-12-01"
+                          aadhaar_issue_authority:
                             type: string
-                            description: Date of KYC completion.
-                            example: "21-08-2023"
-                          UPDATED_DATE:
+                            description: Issuing authority of Aadhaar
+                            example: "UIDAI"
+                          aadhaar_consent_status:
                             type: string
-                            description: Date of the last update to the KYC.
-                            example: "21-08-2023"
-                          ID_LIST:
-                            type: object
-                            properties:
-                              ID:
-                                type: array
-                                description: List of identification types and their statuses.
-                                items:
-                                  type: object
-                                  properties:
-                                    TYPE:
-                                      type: string
-                                      description: Identification type (e.g., A, B, F, C).
-                                      example: "A"
-                                    STATUS:
-                                      type: string
-                                      description: Status code of the identification type.
-                                      example: "03"
-                          REMARKS:
-                            type: object
-                            description: Any additional remarks.
-                            example: {}
+                            description: Consent status for Aadhaar data sharing
+                            example: "Granted"
+                          aadhaar_status_message:
+                            type: string
+                            description: Status message for Aadhaar verification
+                            example: "Aadhaar is verified and active."
+                      pan:
+                        type: object
+                        description: PAN details
+                        properties:
+                          pan_number:
+                            type: string
+                            description: Masked PAN number
+                            example: "ABCDE****F"
+                          pan_status:
+                            type: string
+                            description: Status of PAN verification
+                            example: "Active"
+                          pan_holder_name:
+                            type: string
+                            description: Name of the PAN holder
+                            example: "Ravi Kumar"
+                          pan_verification_date:
+                            type: string
+                            description: PAN verification date
+                            example: "2024-11-25"
+                          pan_expiry_date:
+                            type: string
+                            description: PAN expiry date
+                            example: "2030-11-25"
+                          pan_issue_authority:
+                            type: string
+                            description: Issuing authority of PAN
+                            example: "Income Tax Department"
+                          pan_consent_status:
+                            type: string
+                            description: Consent status for PAN data sharing
+                            example: "Granted"
+                          pan_status_message:
+                            type: string
+                            description: Status message for PAN verification
+                            example: "PAN is active and linked to tax records."
         "401":
           description: Unauthorized - Invalid token
           content:
