@@ -3,14 +3,14 @@ const { authentication, validation } = require("../middleware");
 
 async function adminRoutes(fastify, options) {
     fastify.post(
-        "/verify-ekyc",
+        "/kyc",
         { preHandler: [authentication, validation] },
-        common.ekyc
+        common.kyc
     );
     fastify.post(
-        "/verify-ckyc",
+        "/verify-kyc",
         { preHandler: [authentication, validation] },
-        common.ckyc
+        common.verifyKyc
     );
   }
   
