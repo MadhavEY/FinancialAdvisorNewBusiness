@@ -6,6 +6,9 @@ const {
     application,
     event
 } = require("../db");
+const {
+    v4: uuidv4
+} = require('uuid');
 
 exports.appTrackerCount = async (request, reply) => {
     try {
@@ -152,8 +155,8 @@ exports.agentDetails = async (request, reply) => {
                 responseFormatter(
                     statusCodes.INTERNAL_SERVER_ERROR,
                     "Internal server error occurred", {
-                    error: error.message
-                }
+                        error: error.message
+                    }
                 )
             );
     }
@@ -162,8 +165,7 @@ exports.agentDetails = async (request, reply) => {
 exports.requiredDocList = async (request, reply) => {
     try {
         const response = {
-            docList: [
-                {
+            docList: [{
                     docName: 'Age Proof',
                     required: true,
                     info: ""
@@ -188,8 +190,7 @@ exports.requiredDocList = async (request, reply) => {
                     info: ""
                 }
             ],
-            pivc_medical: [
-                {
+            pivc_medical: [{
                     docName: 'PIVC',
                     required: true
                 },
@@ -237,8 +238,8 @@ exports.requiredDocList = async (request, reply) => {
                 responseFormatter(
                     statusCodes.INTERNAL_SERVER_ERROR,
                     "Internal server error occurred", {
-                    error: error.message
-                }
+                        error: error.message
+                    }
                 )
             );
     }
@@ -246,17 +247,21 @@ exports.requiredDocList = async (request, reply) => {
 
 exports.uploadDocument = async (request, reply) => {
     try {
-        const {applicationId, fileName, base64Data} = request.body;
+        const {
+            applicationId,
+            fileName,
+            base64Data
+        } = request.body;
         let requiredDocsFromDB = await application.getRequirementJson(applicationId); //Getting requirement_json from DB
         requiredDocsFromDB.forEach(item => { //checking file name and updating values
-            if(item.docName === fileName){
+            if (item.docName === fileName) {
                 item.base64Data = base64Data,
-                item.required = false
+                    item.required = false
             }
         });
         const updatedRes = await application.updateRequirementJson(requiredDocsFromDB, applicationId); // update the new data in DB
         const ifAnyRequiredDocExists = updatedRes.some(item => item.required); // checking if any doc is still 'required: true'
-        if(!ifAnyRequiredDocExists){
+        if (!ifAnyRequiredDocExists) {
             await application.updateApplicationStatus('3', applicationId); // if all docs are 'required: false' then update the status to 3
         }
         if (updatedRes.length) {
@@ -286,8 +291,89 @@ exports.uploadDocument = async (request, reply) => {
                 responseFormatter(
                     statusCodes.INTERNAL_SERVER_ERROR,
                     "Internal server error occurred", {
-                    error: error.message
-                }
+                        error: error.message
+                    }
+                )
+            );
+    }
+}
+
+exports.appDetailSubmit = async (request, reply) => {
+    try {
+        const {
+            leadId,
+            status,
+            applicationId,
+            personalDetails,
+            analysis,
+            agentDetails,
+            proposerDetails,
+            nomineeDetails,
+            payoutDetails,
+            healthDetails,
+            fatcaCraDetails
+        } = request.body;
+        const uuid = uuidv4();
+
+        let tableData, row;
+        if (applicationId) {
+            const data = await application.getApplicationDetails(applicationId);
+            if (!data?.length) {
+                return reply
+                    .status(statusCodes.NOT_FOUND)
+                    .send(
+                        responseFormatter(
+                            statusCodes.NOT_FOUND,
+                            "Application not found"
+                        )
+                    );
+            }
+            row = data[0];
+        }
+
+        tableData = {
+            applicationId: applicationId || uuid,
+            quoteId: row?.quote_id || null,
+            leadId: leadId || row?.lead_id,
+            status: status || row?.status || 1,
+            applicationJson: {
+                ...row?.application_json,
+                personalDetails: personalDetails || row?.application_json?.personalDetails,
+                analysis: analysis || row?.application_json?.analysis,
+                agentDetails: agentDetails || row?.application_json?.agentDetails,
+                proposerDetails: proposerDetails || row?.application_json?.proposerDetails,
+                nomineeDetails: nomineeDetails || row?.application_json?.nomineeDetails,
+                payoutDetails: payoutDetails || row?.application_json?.payoutDetails,
+                healthDetails: healthDetails || row?.application_json?.healthDetails,
+                fatcaCraDetails: fatcaCraDetails || row?.application_json?.fatcaCraDetails,
+            },
+            quoteJson: row?.quote_json || null,
+            requirementJson: row?.requirement_json || null,
+            premium: row?.premium || 0,
+        }
+
+        const response = await application.createUpdateApplication(applicationId, tableData);
+
+        reply
+            .status(statusCodes.OK)
+            .send(
+                responseFormatter(
+                    statusCodes.OK,
+                    !applicationId ? "Application created successfully!" : "Application updated successfully!",
+                    response
+                )
+            );
+
+    } catch (error) {
+        await event.insertEventTransaction(request.inValid);
+        return reply
+            .status(statusCodes.INTERNAL_SERVER_ERROR)
+            .send(
+                responseFormatter(
+                    statusCodes.INTERNAL_SERVER_ERROR,
+                    "Internal server error occurred", {
+                        error: error.message
+                    }
                 )
             );
     }
