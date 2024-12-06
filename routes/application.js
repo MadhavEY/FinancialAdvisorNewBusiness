@@ -20,6 +20,24 @@ async function applicationRoutes(fastify) {
         application.appTrackerList
     );
     fastify.post(
+        "/agent-details", {
+            preHandler: [authentication, validation]
+        },
+        application.agentDetails
+    );
+    fastify.get(
+        "/required-doc-list", {
+            preHandler: [authentication, validation]
+        },
+        application.requiredDocList
+    );
+    fastify.post(
+        "/upload-document", {
+            preHandler: [authentication, validation]
+        },
+        application.uploadDocument
+    );
+    fastify.post(
         "/details", {
             preHandler: [authentication, validation]
         },

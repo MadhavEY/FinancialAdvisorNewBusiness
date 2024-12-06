@@ -437,9 +437,9 @@ paths:
                           description: Medical/FInancial/PSC or Underwriting required doc upload Object
                           example: "{}"
                         premium:
-                            type: number
-                            description: Lead Premium details
-                            example: "19000"
+                          type: number
+                          description: Lead Premium details
+                          example: "19000"
         "401":
           description: Unauthorized - Invalid token
           content:
@@ -452,226 +452,309 @@ paths:
                     example: "Unauthorized access."
 
   /application/details:
-      post:
-        summary: Application detail using application ID
-        description: Application detail using application ID
-        operationId: appDetails
-        parameters:
-          - name: authorization
-            in: header
-            required: true
-            description: Bearer token for authorization.
-            schema:
-              type: string
-              example: "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIs..."
-        requestBody:
+    post:
+      summary: Application detail using application ID
+      description: Application detail using application ID
+      operationId: appDetails
+      parameters:
+        - name: authorization
+          in: header
           required: true
+          description: Bearer token for authorization.
+          schema:
+            type: string
+            example: "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIs..."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - applicationId
+              properties:
+                statusType:
+                  type: string
+                  description: Application details using APP ID
+                  example: "12345678"
+      responses:
+        "200":
+          description: Application not found!
           content:
             application/json:
               schema:
                 type: object
-                required:
-                  - applicationId
                 properties:
-                  statusType:
+                  status:
+                    type: integer
+                    description: HTTP status code
+                    example: 200
+                  message:
                     type: string
-                    description: Application details using APP ID
-                    example: "12345678"
-        responses:
-          "200":
-            description: Application not found!
-            content:
-              application/json:
-                schema:
+                    description: Status message
+                    example: "Application not found!"
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: number
+                          description: Application unique ID
+                          example: "1"
+                        application_id:
+                          type: number
+                          description: Application ID/Policy/Proposal No
+                          example: "6766647999"
+                        quote_id:
+                          type: number
+                          description: Quotation No
+                          example: "12321321321"
+                        lead_id:
+                          type: number
+                          description: Lead ID
+                          example: "1"
+                        status:
+                          type: number
+                          description: Application status like draft, QC, etc..
+                          example: "1"
+                        application_json:
+                          type: object
+                          description: Customer details object
+                          example: "{}"
+                        quote_json:
+                          type: number
+                          description: Quotation JSON Details
+                          example: "{}"
+                        requirement_json:
+                          type: number
+                          description: Medical/FInancial/PSC or Underwriting required doc upload Object
+                          example: "{}"
+                        premium:
+                          type: number
+                          description: Lead Premium details
+                          example: "19000"
+        "401":
+          description: Unauthorized - Invalid token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Unauthorized access."
+
+  /quote/save-quote:
+    post:
+      summary: Save a quote with provided data
+      description: Save a quote using applicationId, leadId, quoteId, and quoteJson
+      operationId: saveQuote
+      parameters:
+        - name: authorization
+          in: header
+          required: true
+          description: Bearer token for authorization.
+          schema:
+            type: string
+            example: "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6IjNQYUs0RWZ5Qk5RdTNDdGpZc2EzWW1oUTVFMCIsImtpZCI6IjNQYUs0RWZ5Qk5RdTNDdGpZc2EzWW1oUTVFMCJ9."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - applicationId
+                - leadId
+                - quoteId
+                - quoteJson
+              properties:
+                applicationId:
+                  type: string
+                  description: The unique identifier for the application.
+                  example: "AppliationID"
+                leadId:
+                  type: string
+                  description: The lead ID associated with the quote.
+                  example: "793adb6a2e21fbc81f303b92dc0f181f"
+                quoteId:
+                  type: string
+                  description: The unique identifier for the quote.
+                  example: "80000051773"
+                quoteJson:
                   type: object
-                  properties:
-                    status:
-                      type: integer
-                      description: HTTP status code
-                      example: 200
-                    message:
-                      type: string
-                      description: Status message
-                      example: "Application not found!"
-                    data:
-                      type: array
-                      items:
-                        type: object
-                        properties:
-                          id:
-                            type: number
-                            description: Application unique ID
-                            example: "1"
-                          application_id:
-                            type: number
-                            description: Application ID/Policy/Proposal No
-                            example: "6766647999"
-                          quote_id:
-                            type: number
-                            description: Quotation No
-                            example: "12321321321"
-                          lead_id:
-                            type: number
-                            description: Lead ID
-                            example: "1"
-                          status:
-                            type: number
-                            description: Application status like draft, QC, etc..
-                            example: "1"
-                          application_json:
-                            type: object
-                            description: Customer details object
-                            example: "{}"
-                          quote_json:
-                            type: number
-                            description: Quotation JSON Details
-                            example: "{}"
-                          requirement_json:
-                            type: number
-                            description: Medical/FInancial/PSC or Underwriting required doc upload Object
-                            example: "{}"
-                          premium:
-                            type: number
-                            description: Lead Premium details
-                            example: "19000"
-          "401":
-            description: Unauthorized - Invalid token
-            content:
-              application/json:
-                schema:
-                  type: object
-                  properties:
-                    message:
-                      type: string
-                      example: "Unauthorized access."
+                  description: The quote details in JSON format.
+                  example: {}
+      responses:
+        "200":
+          description: Quote saved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    description: HTTP status code
+                    example: 200
+                  message:
+                    type: string
+                    description: Success message
+                    example: "Quote saved successfully!"
+        "400":
+          description: Bad request due to invalid data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    description: HTTP status code
+                    example: 400
+                  message:
+                    type: string
+                    description: Error message
+                    example: "Invalid input data"
+        "401":
+          description: Unauthorized access - Invalid token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Unauthorized access."
 
   /application/details-update:
-      post:
-        summary: Application detail update or create
-        description: Application detail update or create
-        operationId: appDetailSubmit
-        parameters:
-          - name: authorization
-            in: header
-            required: true
-            description: Bearer token for authorization.
-            schema:
-              type: string
-              example: "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIs..."
-        requestBody:
-          required: true
-          content:
-            application/json:
+        post:
+          summary: Application detail update or create
+          description: Application detail update or create
+          operationId: appDetailSubmit
+          parameters:
+            - name: authorization
+              in: header
+              required: true
+              description: Bearer token for authorization.
               schema:
-                type: object
-                required:
-                  - leadId
-                  - applicationId
-                properties:
-                  leadId:
-                    type: string
-                    description: Lead Id os customer
-                    example: "12345678"
-                  applicationId:
-                    type: string
-                    description: Application ID
-                    example: "12345678"
-                  personalDetails:
-                    type: object
-                    description: Personal details object
-                    example: {}
-                  analysis:
-                    type: object
-                    description: Sutability analysis object
-                    example: {}
-                  agentDetails:
-                    type: object
-                    description: Agent details object
-                    example: {}
-                  proposerDetails:
-                    type: object
-                    description: Proposer details object
-                    example: {}
-                  nomineeDetails:
-                    type: object
-                    description: Nominee details array of object object
-                    example: [{}]
-                  payoutDetails:
-                    type: object
-                    description: Payout bank details object
-                    example: {}
-                  healthDetails:
-                    type: object
-                    description: Health details object
-                    example: {}
-                  fatcaCraDetails:
-                    type: object
-                    description: FARCA CRA Details object
-                    example: {}
-        responses:
-          "200":
-            description: Application not found!
+                type: string
+                example: "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIs..."
+          requestBody:
+            required: true
             content:
               application/json:
                 schema:
                   type: object
+                  required:
+                    - leadId
+                    - applicationId
                   properties:
-                    status:
-                      type: integer
-                      description: HTTP status code
-                      example: 200
-                    message:
+                    leadId:
                       type: string
-                      description: Status message
-                      example: "Application created successfully!"
-                    data:
-                      type: array
-                      items:
-                        type: object
-                        properties:
-                          id:
-                            type: number
-                            description: Application unique ID
-                            example: "1"
-                          application_id:
-                            type: number
-                            description: Application ID/Policy/Proposal No
-                            example: "6766647999"
-                          quote_id:
-                            type: number
-                            description: Quotation No
-                            example: "12321321321"
-                          lead_id:
-                            type: number
-                            description: Lead ID
-                            example: "1"
-                          status:
-                            type: number
-                            description: Application status like draft, QC, etc..
-                            example: "1"
-                          application_json:
-                            type: object
-                            description: Customer details object
-                            example: "{}"
-                          quote_json:
-                            type: number
-                            description: Quotation JSON Details
-                            example: "{}"
-                          requirement_json:
-                            type: number
-                            description: Medical/FInancial/PSC or Underwriting required doc upload Object
-                            example: "{}"
-                          premium:
-                            type: number
-                            description: Lead Premium details
-                            example: "19000"
-          "401":
-            description: Unauthorized - Invalid token
-            content:
-              application/json:
-                schema:
-                  type: object
-                  properties:
-                    message:
+                      description: Lead Id os customer
+                      example: "12345678"
+                    applicationId:
                       type: string
-                      example: "Unauthorized access."
+                      description: Application ID
+                      example: "12345678"
+                    personalDetails:
+                      type: object
+                      description: Personal details object
+                      example: {}
+                    analysis:
+                      type: object
+                      description: Sutability analysis object
+                      example: {}
+                    agentDetails:
+                      type: object
+                      description: Agent details object
+                      example: {}
+                    proposerDetails:
+                      type: object
+                      description: Proposer details object
+                      example: {}
+                    nomineeDetails:
+                      type: object
+                      description: Nominee details array of object object
+                      example: [{}]
+                    payoutDetails:
+                      type: object
+                      description: Payout bank details object
+                      example: {}
+                    healthDetails:
+                      type: object
+                      description: Health details object
+                      example: {}
+                    fatcaCraDetails:
+                      type: object
+                      description: FARCA CRA Details object
+                      example: {}
+          responses:
+            "200":
+              description: Application not found!
+              content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      status:
+                        type: integer
+                        description: HTTP status code
+                        example: 200
+                      message:
+                        type: string
+                        description: Status message
+                        example: "Application created successfully!"
+                      data:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: number
+                              description: Application unique ID
+                              example: "1"
+                            application_id:
+                              type: number
+                              description: Application ID/Policy/Proposal No
+                              example: "6766647999"
+                            quote_id:
+                              type: number
+                              description: Quotation No
+                              example: "12321321321"
+                            lead_id:
+                              type: number
+                              description: Lead ID
+                              example: "1"
+                            status:
+                              type: number
+                              description: Application status like draft, QC, etc..
+                              example: "1"
+                            application_json:
+                              type: object
+                              description: Customer details object
+                              example: "{}"
+                            quote_json:
+                              type: number
+                              description: Quotation JSON Details
+                              example: "{}"
+                            requirement_json:
+                              type: number
+                              description: Medical/FInancial/PSC or Underwriting required doc upload Object
+                              example: "{}"
+                            premium:
+                              type: number
+                              description: Lead Premium details
+                              example: "19000"
+            "401":
+              description: Unauthorized - Invalid token
+              content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                        example: "Unauthorized access."
