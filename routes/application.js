@@ -37,6 +37,18 @@ async function applicationRoutes(fastify) {
         },
         application.uploadDocument
     );
+    fastify.post(
+        "/details", {
+            preHandler: [authentication, validation]
+        },
+        application.appDetails
+    );
+    fastify.post(
+        "/submission", {
+            preHandler: [authentication, validation]
+        },
+        application.appSubmission
+    );
 }
 
 module.exports = applicationRoutes;

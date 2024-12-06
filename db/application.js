@@ -5,7 +5,7 @@ const {
 const getApplicationTrackerDetails = async (isCount, status, limit, offset, keyword = "") => {
     try {
         if (isCount) {
-            let query = `SELECT COUNT(*) FROM newbusiness.application_data WHERE status = $1`;
+            let query = `SELECT COUNT(*), SUM(premium) as TotalPremium FROM newbusiness.application_data WHERE status = $1`;
             const res = await client.query(query, [status]);
             return res?.rows[0] || 0;
         } else {
@@ -73,9 +73,21 @@ const updateApplicationStatus = async (status, appId) => {
     }
 }
 
+const getApplicationDetails = async (appId) => {
+    try {
+        let query = `SELECT * FROM newbusiness.application_data WHERE application_id = $1 `;
+        const res = await client.query(query, [appId]);
+        return res?.rows || [];
+    } catch (error) {
+        console.error("Error: ", error);
+        throw error;
+    }
+}
+
 module.exports = {
     getApplicationTrackerDetails,
     getRequirementJson,
     updateRequirementJson,
-    updateApplicationStatus
+    updateApplicationStatus,
+    getApplicationDetails
 };
