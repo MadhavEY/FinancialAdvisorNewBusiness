@@ -31,6 +31,12 @@ async function applicationRoutes(fastify) {
         },
         application.requiredDocList
     );
+    fastify.post(
+        "/upload-document", {
+            preHandler: [authentication, validation]
+        },
+        application.uploadDocument
+    );
 }
 
 module.exports = applicationRoutes;

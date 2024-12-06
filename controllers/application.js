@@ -212,3 +212,52 @@ exports.requiredDocList = async (request, reply) => {
     }
 }
 
+exports.uploadDocument = async (request, reply) => {
+    try {
+        const {applicationId, fileName, base64Data} = request.body;
+        let requiredDocsFromDB = await application.getRequirementJson(applicationId); //Getting requirement_json from DB
+        requiredDocsFromDB.forEach(item => { //checking file name and updating values
+            if(item.docName === fileName){
+                item.base64Data = base64Data,
+                item.required = false
+            }
+        });
+        const updatedRes = await application.updateRequirementJson(requiredDocsFromDB, applicationId); // update the new data in DB
+        const ifAnyRequiredDocExists = updatedRes.some(item => item.required); // checking if any doc is still 'required: true'
+        if(!ifAnyRequiredDocExists){
+            await application.updateApplicationStatus('3', applicationId); // if all docs are 'required: false' then update the status to 3
+        }
+        if (updatedRes.length) {
+            await event.insertEventTransaction(request.isValid);
+            return reply
+                .status(statusCodes.OK)
+                .send(
+                    responseFormatter(
+                        statusCodes.OK,
+                        "Document uploaded successfully"
+                    )
+                );
+        } else {
+            return reply
+                .status(statusCodes.OK)
+                .send(
+                    responseFormatter(
+                        statusCodes.OK,
+                        "Data not found"
+                    )
+                );
+        }
+    } catch (error) {
+        return reply
+            .status(statusCodes.INTERNAL_SERVER_ERROR)
+            .send(
+                responseFormatter(
+                    statusCodes.INTERNAL_SERVER_ERROR,
+                    "Internal server error occurred", {
+                    error: error.message
+                }
+                )
+            );
+    }
+}
+
