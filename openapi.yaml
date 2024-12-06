@@ -281,9 +281,6 @@ paths:
           schema:
             type: string
             example: "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIs..."
-      requestBody:
-        required: false
-
       responses:
         "200":
           description: Otp verified successfully
