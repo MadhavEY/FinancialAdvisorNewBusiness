@@ -25,6 +25,12 @@ async function applicationRoutes(fastify) {
         },
         application.agentDetails
     );
+    fastify.get(
+        "/required-doc-list", {
+            preHandler: [authentication, validation]
+        },
+        application.requiredDocList
+    );
 }
 
 module.exports = applicationRoutes;

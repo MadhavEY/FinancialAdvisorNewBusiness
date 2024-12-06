@@ -447,11 +447,11 @@ paths:
                     type: string
                     example: "Unauthorized access."
 
-  /application/agent-details:
-    post:
-      summary: Fetch Agent Details
-      description: Retrieves the agent details.
-      operationId: agentDetails
+  /application/required-doc-list:
+    get:
+      summary: Fetch Document List
+      description: Retrieves the list of required documents and medical requirements.
+      operationId: requiredDocList
       parameters:
         - name: authorization
           in: header
@@ -460,22 +460,9 @@ paths:
           schema:
             type: string
             example: "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIs..."
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - agentCode
-              properties:
-                agentCode:
-                  type: string
-                  description: Agent code of the agent.
-                  example: "AGT12345"
       responses:
         "200":
-          description: Agent data fetched successfully
+          description: Document list fetched successfully
           content:
             application/json:
               schema:
@@ -488,30 +475,46 @@ paths:
                   message:
                     type: string
                     description: Status message
-                    example: "Agent data fetched successfully"
+                    example: "Document list fetched successfully"
                   data:
                     type: object
                     properties:
-                      agentCode:
-                        type: string
-                        description: Unique code of the agent
-                        example: "AGT12345"
-                      name:
-                        type: string
-                        description: Name of the agent
-                        example: "Rahul Sharma"
-                      branchCode:
-                        type: string
-                        description: Code of the branch the agent is associated with
-                        example: "BRC5678"
-                      branchName:
-                        type: string
-                        description: Name of the branch
-                        example: "Mumbai Central"
-                      branchLocation:
-                        type: string
-                        description: Location of the branch
-                        example: "Mumbai, Maharashtra"
+                      docList:
+                        type: array
+                        description: List of required documents
+                        items:
+                          type: object
+                          properties:
+                            docName:
+                              type: string
+                              description: Name of the document
+                              example: "Age Proof"
+                            required:
+                              type: boolean
+                              description: Whether the document is mandatory
+                              example: true
+                            info:
+                              type: string
+                              description: Additional information about the document
+                              example: ""
+                      pivc_medical:
+                        type: array
+                        description: List of PIVC and medical requirements
+                        items:
+                          type: object
+                          properties:
+                            docName:
+                              type: string
+                              description: Name of the medical requirement
+                              example: "PIVC"
+                            required:
+                              type: boolean
+                              description: Whether the requirement is mandatory
+                              example: true
+                            info:
+                              type: string
+                              description: Additional information about the medical requirement
+                              example: ""
         "401":
           description: Unauthorized - Invalid token
           content:

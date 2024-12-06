@@ -80,50 +80,135 @@ exports.appTrackerList = async (request, reply) => {
 
 exports.agentDetails = async (request, reply) => {
     try {
-      const {
-        agentCode
-      } = request.body;
-      
-      const response = {
-        agentCode: 'AGT12345',
-        name: 'Rahul Sharma',
-        branchCode: 'BRC5678',
-        branchName: 'Mumbai Central',
-        branchLocation: 'Mumbai, Maharashtra'
-      }
-      if (response) {
-        await event.insertEventTransaction(request.isValid);
-        return reply
-          .status(statusCodes.OK)
-          .send(
-            responseFormatter(
-              statusCodes.OK,
-              "Agent data fetched successfully",
-              response
-            )
-          );
-      } else {
-        return reply
-          .status(statusCodes.OK)
-          .send(
-            responseFormatter(
-              statusCodes.OK,
-              "Data not found",
-              response
-            )
-          );
-      }
+        const {
+            agentCode
+        } = request.body;
+
+        const response = {
+            agentCode: 'AGT12345',
+            name: 'Rahul Sharma',
+            branchCode: 'BRC5678',
+            branchName: 'Mumbai Central',
+            branchLocation: 'Mumbai, Maharashtra'
+        }
+        if (response) {
+            await event.insertEventTransaction(request.isValid);
+            return reply
+                .status(statusCodes.OK)
+                .send(
+                    responseFormatter(
+                        statusCodes.OK,
+                        "Agent data fetched successfully",
+                        response
+                    )
+                );
+        } else {
+            return reply
+                .status(statusCodes.OK)
+                .send(
+                    responseFormatter(
+                        statusCodes.OK,
+                        "Data not found",
+                        response
+                    )
+                );
+        }
     } catch (error) {
-      return reply
-        .status(statusCodes.INTERNAL_SERVER_ERROR)
-        .send(
-          responseFormatter(
-            statusCodes.INTERNAL_SERVER_ERROR,
-            "Internal server error occurred", {
-              error: error.message
-            }
-          )
-        );
+        return reply
+            .status(statusCodes.INTERNAL_SERVER_ERROR)
+            .send(
+                responseFormatter(
+                    statusCodes.INTERNAL_SERVER_ERROR,
+                    "Internal server error occurred", {
+                    error: error.message
+                }
+                )
+            );
     }
-  }
+}
+
+exports.requiredDocList = async (request, reply) => {
+    try {
+        const response = {
+            docList: [
+                {
+                    docName: 'Age Proof',
+                    required: true,
+                    info: ""
+                },
+                {
+                    docName: 'Identity Proof',
+                    required: true,
+                    info: ""
+                },
+                {
+                    docName: 'Photo Proof',
+                    required: true
+                },
+                {
+                    docName: 'Address Proof',
+                    required: true,
+                    info: ""
+                },
+                {
+                    docName: 'Income Proof',
+                    required: true,
+                    info: ""
+                }
+            ],
+            pivc_medical: [
+                {
+                    docName: 'PIVC',
+                    required: true
+                },
+                {
+                    docName: 'VMER',
+                    required: true
+                },
+                {
+                    docName: 'TMER',
+                    required: true
+                },
+                {
+                    docName: 'Physical medical',
+                    required: true,
+                    info: ""
+                }
+            ]
+        }
+        if (response) {
+            await event.insertEventTransaction(request.isValid);
+            return reply
+                .status(statusCodes.OK)
+                .send(
+                    responseFormatter(
+                        statusCodes.OK,
+                        "Document list fetched successfully",
+                        response
+                    )
+                );
+        } else {
+            return reply
+                .status(statusCodes.OK)
+                .send(
+                    responseFormatter(
+                        statusCodes.OK,
+                        "Data not found",
+                        response
+                    )
+                );
+        }
+    } catch (error) {
+        return reply
+            .status(statusCodes.INTERNAL_SERVER_ERROR)
+            .send(
+                responseFormatter(
+                    statusCodes.INTERNAL_SERVER_ERROR,
+                    "Internal server error occurred", {
+                    error: error.message
+                }
+                )
+            );
+    }
+}
 
