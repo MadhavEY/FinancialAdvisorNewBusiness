@@ -9,7 +9,8 @@ async function saveQuote(quoteData) {
           lead_id,
           quote_json,
           premium
-        ) VALUES ($1, $2, $3, $4, $5);
+        ) VALUES ($1, $2, $3, $4, $5)
+        RETURNING application_id, quote_id, lead_id, premium;
       `;
 
     // Extract the values in the same order as the columns
