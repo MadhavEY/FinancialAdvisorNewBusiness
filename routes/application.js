@@ -19,6 +19,12 @@ async function applicationRoutes(fastify) {
         },
         application.appTrackerList
     );
+    fastify.post(
+        "/agent-details", {
+            preHandler: [authentication, validation]
+        },
+        application.agentDetails
+    );
 }
 
 module.exports = applicationRoutes;

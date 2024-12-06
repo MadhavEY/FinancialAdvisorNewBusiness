@@ -77,3 +77,53 @@ exports.appTrackerList = async (request, reply) => {
             );
     }
 }
+
+exports.agentDetails = async (request, reply) => {
+    try {
+      const {
+        agentCode
+      } = request.body;
+      
+      const response = {
+        agentCode: 'AGT12345',
+        name: 'Rahul Sharma',
+        branchCode: 'BRC5678',
+        branchName: 'Mumbai Central',
+        branchLocation: 'Mumbai, Maharashtra'
+      }
+      if (response) {
+        await event.insertEventTransaction(request.isValid);
+        return reply
+          .status(statusCodes.OK)
+          .send(
+            responseFormatter(
+              statusCodes.OK,
+              "Agent data fetched successfully",
+              response
+            )
+          );
+      } else {
+        return reply
+          .status(statusCodes.OK)
+          .send(
+            responseFormatter(
+              statusCodes.OK,
+              "Data not found",
+              response
+            )
+          );
+      }
+    } catch (error) {
+      return reply
+        .status(statusCodes.INTERNAL_SERVER_ERROR)
+        .send(
+          responseFormatter(
+            statusCodes.INTERNAL_SERVER_ERROR,
+            "Internal server error occurred", {
+              error: error.message
+            }
+          )
+        );
+    }
+  }
+
