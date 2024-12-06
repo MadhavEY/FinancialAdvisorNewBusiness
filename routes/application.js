@@ -26,6 +26,12 @@ async function applicationRoutes(fastify) {
         application.appDetails
     );
     fastify.post(
+        "/details-update", {
+            preHandler: [authentication, validation]
+        },
+        application.appDetailSubmit
+    );
+    fastify.post(
         "/submission", {
             preHandler: [authentication, validation]
         },
