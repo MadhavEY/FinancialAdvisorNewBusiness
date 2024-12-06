@@ -3,10 +3,7 @@ const { quote, event } = require("../db");
 
 exports.saveQuote = async (request, reply) => {
   try {
-    console.log("hweeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
-    
     const quoteToSave = request.body;
-    return quoteToSave
     const savedQuote = await quote.saveQuote(quoteToSave);
     if (savedQuote) {
       await event.insertEventTransaction(request.isValid);
