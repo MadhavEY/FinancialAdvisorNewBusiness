@@ -19,6 +19,18 @@ async function applicationRoutes(fastify) {
         },
         application.appTrackerList
     );
+    fastify.post(
+        "/details", {
+            preHandler: [authentication, validation]
+        },
+        application.appDetails
+    );
+    fastify.post(
+        "/submission", {
+            preHandler: [authentication, validation]
+        },
+        application.appSubmission
+    );
 }
 
 module.exports = applicationRoutes;
