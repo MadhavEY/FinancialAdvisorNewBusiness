@@ -5,7 +5,7 @@ const {
 const getApplicationTrackerDetails = async (isCount, status, limit, offset, keyword = "") => {
     try {
         if (isCount) {
-            let query = `SELECT COUNT(*), SUM(premium) as TotalPremium FROM newbusiness.application_data WHERE status = $1`;
+            let query = `SELECT COUNT(*), ROUND(SUM(premium),2) as TotalPremium FROM newbusiness.application_data WHERE status = $1`;
             const res = await client.query(query, [status]);
             return res?.rows[0] || 0;
         } else {
