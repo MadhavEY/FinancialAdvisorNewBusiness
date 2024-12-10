@@ -15,7 +15,7 @@ async function saveQuote(quoteData) {
     const inputValidation = quoteData.quoteJson.InputValidationStatus;
     let premium;
     if (inputValidation == null) {
-      premium = null;
+      premium = 0;
     } else {
       premium = inputValidation[0].ModalPremium;
     }
