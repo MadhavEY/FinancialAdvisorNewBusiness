@@ -35,6 +35,33 @@ async function saveQuote(quoteData) {
   }
 }
 
+async function getList() {
+  try {
+    const query = `
+    SELECT 
+    mm.meta_master_name,
+    md.meta_data_name,
+    md.idmetadata
+    FROM 
+    newbusiness.nb_metamaster mm
+    JOIN 
+    newbusiness.nb_metadata md
+    ON mm.idmetamaster = md.idmetamaster
+    WHERE 
+    mm.meta_master_name IN ('docList', 'pivc_medical')  -- Filter for the two meta_master_name
+    AND md.activeflag = 1  -- Ensure that the metadata is active
+    ORDER BY 
+    mm.meta_master_name, md.meta_data_name;
+    `;
+    const res = await client.query(query);
+    return res.rows;
+  } catch (error) {
+    console.error("Error executing query", error.stack);
+    throw error;
+  }
+}
+
 module.exports = {
+  getList,
   saveQuote,
 };
