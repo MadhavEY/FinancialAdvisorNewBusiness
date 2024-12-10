@@ -13,7 +13,7 @@ const getApplicationTrackerDetails = async (isCount, status, limit, offset, keyw
             if (keyword) {
                 query += ` AND (application_id ILIKE '%${keyword}%' OR application_json->'personalDetails'->>'firstName' ILIKE '%${keyword}%' OR application_json->'personalDetails'->>'middleName' ILIKE '%${keyword}%' OR application_json->'personalDetails'->>'lastName' ILIKE '%${keyword}%') `;
             }
-            query += ` LIMIT $2 OFFSET $3`;
+            query += ` ORDER BY id DESC LIMIT $2 OFFSET $3`;
             console.log(query)
             const res = await client.query(query, [status, limit, offset]);
             return res?.rows || [];
@@ -75,7 +75,7 @@ const updateApplicationStatus = async (status, appId) => {
 
 const getApplicationDetails = async (appId) => {
     try {
-        let query = `SELECT * FROM newbusiness.application_data WHERE application_id = $1 `;
+        let query = `SELECT * FROM newbusiness.application_data WHERE application_id = $1 OR lead_id = $1`;
         const res = await client.query(query, [appId]);
         return res?.rows || [];
     } catch (error) {
