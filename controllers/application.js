@@ -1,17 +1,30 @@
-const { responseFormatter, statusCodes } = require("../utils");
-const { application, event, quote } = require("../db");
-const { v4: uuidv4 } = require("uuid");
+const {
+  responseFormatter,
+  statusCodes
+} = require("../utils");
+const {
+  application,
+  event,
+  quote
+} = require("../db");
+const {
+  v4: uuidv4
+} = require("uuid");
+const {
+  REQUIRED_DOCUMENTS,
+  findAndUpdateDocument
+} = require("../utils/application");
 
 exports.appTrackerCount = async (request, reply) => {
   try {
     await event.insertEventTransaction(request.isValid);
     const [draft, requirementPending, qcUW, decisionProvided] =
-      await Promise.all([
-        application.getApplicationTrackerDetails(true, 1),
-        application.getApplicationTrackerDetails(true, 2),
-        application.getApplicationTrackerDetails(true, 3),
-        application.getApplicationTrackerDetails(true, 4),
-      ]);
+    await Promise.all([
+      application.getApplicationTrackerDetails(true, 1),
+      application.getApplicationTrackerDetails(true, 2),
+      application.getApplicationTrackerDetails(true, 3),
+      application.getApplicationTrackerDetails(true, 4),
+    ]);
 
     reply.status(statusCodes.OK).send(
       responseFormatter(statusCodes.OK, "Data fetched successfully!", {
@@ -26,8 +39,7 @@ exports.appTrackerCount = async (request, reply) => {
     return reply.status(statusCodes.INTERNAL_SERVER_ERROR).send(
       responseFormatter(
         statusCodes.INTERNAL_SERVER_ERROR,
-        "Internal server error occurred",
-        {
+        "Internal server error occurred", {
           error: error.message,
         }
       )
@@ -38,7 +50,12 @@ exports.appTrackerCount = async (request, reply) => {
 exports.appTrackerList = async (request, reply) => {
   try {
     await event.insertEventTransaction(request.isValid);
-    const { statusType, limit, pageNo, searchKeyword } = request.body;
+    const {
+      statusType,
+      limit,
+      pageNo,
+      searchKeyword
+    } = request.body;
 
     const pageLimit = Number(limit);
     const offset = pageLimit * Number(pageNo);
@@ -63,8 +80,7 @@ exports.appTrackerList = async (request, reply) => {
     return reply.status(statusCodes.INTERNAL_SERVER_ERROR).send(
       responseFormatter(
         statusCodes.INTERNAL_SERVER_ERROR,
-        "Internal server error occurred",
-        {
+        "Internal server error occurred", {
           error: error.message,
         }
       )
@@ -75,7 +91,9 @@ exports.appTrackerList = async (request, reply) => {
 exports.appDetails = async (request, reply) => {
   try {
     await event.insertEventTransaction(request.isValid);
-    const { applicationId } = request.body;
+    const {
+      applicationId
+    } = request.body;
     const response = await application.getApplicationDetails(applicationId);
 
     reply
@@ -83,9 +101,9 @@ exports.appDetails = async (request, reply) => {
       .send(
         responseFormatter(
           response?.length === 0 ? statusCodes.NOT_FOUND : statusCodes.OK,
-          response?.length === 0
-            ? "Application not found!"
-            : "Application details fetched successfully",
+          response?.length === 0 ?
+          "Application not found!" :
+          "Application details fetched successfully",
           response
         )
       );
@@ -94,8 +112,7 @@ exports.appDetails = async (request, reply) => {
     return reply.status(statusCodes.INTERNAL_SERVER_ERROR).send(
       responseFormatter(
         statusCodes.INTERNAL_SERVER_ERROR,
-        "Internal server error occurred",
-        {
+        "Internal server error occurred", {
           error: error.message,
         }
       )
@@ -105,7 +122,9 @@ exports.appDetails = async (request, reply) => {
 
 exports.agentDetails = async (request, reply) => {
   try {
-    const { agentCode } = request.body;
+    const {
+      agentCode
+    } = request.body;
 
     const response = {
       agentCode: "AGT12345",
@@ -134,8 +153,7 @@ exports.agentDetails = async (request, reply) => {
     return reply.status(statusCodes.INTERNAL_SERVER_ERROR).send(
       responseFormatter(
         statusCodes.INTERNAL_SERVER_ERROR,
-        "Internal server error occurred",
-        {
+        "Internal server error occurred", {
           error: error.message,
         }
       )
@@ -247,8 +265,7 @@ exports.requiredDocList = async (request, reply) => {
     return reply.status(statusCodes.INTERNAL_SERVER_ERROR).send(
       responseFormatter(
         statusCodes.INTERNAL_SERVER_ERROR,
-        "Internal server error occurred",
-        {
+        "Internal server error occurred", {
           error: error.message,
         }
       )
@@ -258,42 +275,43 @@ exports.requiredDocList = async (request, reply) => {
 
 exports.uploadDocument = async (request, reply) => {
   try {
-    const { applicationId, fileName, base64Data } = request.body;
-    let requiredDocsFromDB = await application.getRequirementJson(
+    const {
       applicationId
-    ); //Getting requirement_json from DB
-    requiredDocsFromDB.forEach((item) => {
-      //checking file name and updating values
-      if (item.docName === fileName) {
-        (item.base64Data = base64Data), (item.required = false);
-      }
-    });
-    const updatedRes = await application.updateRequirementJson(
-      requiredDocsFromDB,
-      applicationId
-    ); // update the new data in DB
-    const ifAnyRequiredDocExists = updatedRes.some((item) => item.required); // checking if any doc is still 'required: true'
-    if (!ifAnyRequiredDocExists) {
-      await application.updateApplicationStatus("3", applicationId); // if all docs are 'required: false' then update the status to 3
-    }
-    if (updatedRes.length) {
-      await event.insertEventTransaction(request.isValid);
+    } = request.body;
+
+    // Find application document list
+    const appDetails = await application.getApplicationDetails(applicationId);
+    if (!appDetails?.length) {
       return reply
-        .status(statusCodes.OK)
+        .status(statusCodes.NOT_FOUND)
         .send(
-          responseFormatter(statusCodes.OK, "Document uploaded successfully")
+          responseFormatter(statusCodes.NOT_FOUND, "Application not found")
         );
-    } else {
-      return reply
-        .status(statusCodes.OK)
-        .send(responseFormatter(statusCodes.OK, "Data not found"));
     }
+    const updatedDocList = await findAndUpdateDocument(appDetails[0].requirement_json, request.body);
+
+    const status = updatedDocList?.filter(item => item.required == true)?.length > 0 ? "2" : "3";
+
+    const response = await application.updateRequirementJson(
+      updatedDocList,
+      status,
+      applicationId
+    );
+
+    reply
+      .status(statusCodes.OK)
+      .send(
+        responseFormatter(
+          statusCodes.OK,
+          "Document uploaded successfully!",
+          response
+        )
+      );
   } catch (error) {
     return reply.status(statusCodes.INTERNAL_SERVER_ERROR).send(
       responseFormatter(
         statusCodes.INTERNAL_SERVER_ERROR,
-        "Internal server error occurred",
-        {
+        "Internal server error occurred", {
           error: error.message,
         }
       )
@@ -338,20 +356,17 @@ exports.appDetailSubmit = async (request, reply) => {
       status: status || row?.status || 1,
       applicationJson: {
         ...row?.application_json,
-        personalDetails:
-          personalDetails || row?.application_json?.personalDetails,
+        personalDetails: personalDetails || row?.application_json?.personalDetails,
         analysis: analysis || row?.application_json?.analysis,
         agentDetails: agentDetails || row?.application_json?.agentDetails,
-        proposerDetails:
-          proposerDetails || row?.application_json?.proposerDetails,
+        proposerDetails: proposerDetails || row?.application_json?.proposerDetails,
         nomineeDetails: nomineeDetails || row?.application_json?.nomineeDetails,
         payoutDetails: payoutDetails || row?.application_json?.payoutDetails,
         healthDetails: healthDetails || row?.application_json?.healthDetails,
-        fatcaCraDetails:
-          fatcaCraDetails || row?.application_json?.fatcaCraDetails,
+        fatcaCraDetails: fatcaCraDetails || row?.application_json?.fatcaCraDetails,
       },
       quoteJson: row?.quote_json || null,
-      requirementJson: row?.requirement_json || null,
+      requirementJson: row?.requirement_json || REQUIRED_DOCUMENTS || [],
       premium: row?.premium || 0,
     };
 
@@ -365,9 +380,9 @@ exports.appDetailSubmit = async (request, reply) => {
       .send(
         responseFormatter(
           statusCodes.OK,
-          !applicationId
-            ? "Application created successfully!"
-            : "Application updated successfully!",
+          !applicationId ?
+          "Application created successfully!" :
+          "Application updated successfully!",
           response
         )
       );
@@ -376,8 +391,7 @@ exports.appDetailSubmit = async (request, reply) => {
     return reply.status(statusCodes.INTERNAL_SERVER_ERROR).send(
       responseFormatter(
         statusCodes.INTERNAL_SERVER_ERROR,
-        "Internal server error occurred",
-        {
+        "Internal server error occurred", {
           error: error.message,
         }
       )
