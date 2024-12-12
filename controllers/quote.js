@@ -4,7 +4,10 @@ const {
   quoteUtils,
   azureBlob,
 } = require("../utils");
-const { quote, event } = require("../db");
+const {
+  quote,
+  event
+} = require("../db");
 require("dotenv").config();
 
 exports.saveQuote = async (request, reply) => {
@@ -64,8 +67,7 @@ exports.saveQuote = async (request, reply) => {
     return reply.status(statusCodes.INTERNAL_SERVER_ERROR).send(
       responseFormatter(
         statusCodes.INTERNAL_SERVER_ERROR,
-        "Internal server error occurred",
-        {
+        "Internal server error occurred", {
           error: error.message,
         }
       )
