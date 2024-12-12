@@ -935,21 +935,31 @@ paths:
               type: object
               required:
                 - applicationId
-                - fileName
-                - base64Data
+                - idmetadata
+                - docName
+                - required
+                - info
               properties:
                 applicationId:
                   type: string
                   description: Unique ID of the application.
-                  example: "45768643"
-                fileName:
+                  example: "APPEY00003"
+                idmetadata:
                   type: string
-                  description: Name of the document being uploaded.
-                  example: "Physical medical"
-                base64Data:
+                  description: Unique meta data Id of document.
+                  example: "e64c2aba1b7b4796a0b77d1e6dc41f9f"
+                docName:
                   type: string
-                  description: Base64 encoded data of the document.
-                  example: "data:application/pdf;base64,JVBERi0xLjQKJ... (base64 content)"
+                  description: Document name getting from doc list.
+                  example: "Address Proof"
+                required:
+                  type: boolean
+                  description: Send required as false when uploading document.
+                  example: "false"
+                info:
+                  type: string
+                  description: File info getting from list
+                  example: ""
       responses:
         "200":
           description: Document uploaded successfully
