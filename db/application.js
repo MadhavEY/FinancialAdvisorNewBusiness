@@ -39,17 +39,11 @@ const getRequirementJson = async (appId) => {
     }
 }
 
-const updateRequirementJson = async (requirementJson, appId) => {
+const updateRequirementJson = async (requirementJson, status, appId) => {
     try {
-        let query = `
-        UPDATE 
-        newbusiness.application_data
-        SET requirement_json = $1 
-        WHERE application_id = $2
-        RETURNING *
-        `;
-        const res = await client.query(query, [JSON.stringify(requirementJson), appId]);
-        return res?.rows[0].requirement_json;
+        let query = `UPDATE newbusiness.application_data SET requirement_json = $1, status = $2 WHERE application_id = $3 RETURNING * `;
+        const res = await client.query(query, [JSON.stringify(requirementJson), status, appId]);
+        return res?.rows;
     } catch (error) {
         console.error("Error: ", error);
         throw error;
