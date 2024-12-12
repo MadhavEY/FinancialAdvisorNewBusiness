@@ -74,7 +74,12 @@ const findAndUpdateDocument = async (documents, document) => {
 
 };
 
+const notRequiredDocuments = () => {
+    return ["575d9c0eda244976ae422ec77cc7942c", "f9964b0d15b244b393df6b111e62096b"]
+}
+
 module.exports = {
     REQUIRED_DOCUMENTS,
-    findAndUpdateDocument
+    findAndUpdateDocument,
+    notRequiredDocuments
 }

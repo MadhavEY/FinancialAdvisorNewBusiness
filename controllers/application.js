@@ -12,7 +12,8 @@ const {
 } = require("uuid");
 const {
   REQUIRED_DOCUMENTS,
-  findAndUpdateDocument
+  findAndUpdateDocument,
+  notRequiredDocuments
 } = require("../utils/application");
 
 exports.appTrackerCount = async (request, reply) => {
@@ -182,7 +183,7 @@ exports.requiredDocList = async (request, reply) => {
         const doc = {
           idmetadata: item.idmetadata,
           docName: item.meta_data_name,
-          required: true,
+          required: notRequiredDocuments().includes(item.idmetadata) ? false : true,
           info: "",
         };
 
@@ -198,53 +199,6 @@ exports.requiredDocList = async (request, reply) => {
       return result;
     }
     const response = formatMetadata(docListData);
-    // const response = {
-    //   docList: [
-    //     {
-    //       docName: "Age Proof",
-    //       required: true,
-    //       info: "",
-    //     },
-    //     {
-    //       docName: "Identity Proof",
-    //       required: true,
-    //       info: "",
-    //     },
-    //     {
-    //       docName: "Photo Proof",
-    //       required: true,
-    //     },
-    //     {
-    //       docName: "Address Proof",
-    //       required: true,
-    //       info: "",
-    //     },
-    //     {
-    //       docName: "Income Proof",
-    //       required: true,
-    //       info: "",
-    //     },
-    //   ],
-    //   pivc_medical: [
-    //     {
-    //       docName: "PIVC",
-    //       required: true,
-    //     },
-    //     {
-    //       docName: "VMER",
-    //       required: true,
-    //     },
-    //     {
-    //       docName: "TMER",
-    //       required: true,
-    //     },
-    //     {
-    //       docName: "Physical medical",
-    //       required: true,
-    //       info: "",
-    //     },
-    //   ],
-    // };
     if (response) {
       await event.insertEventTransaction(request.isValid);
       return reply
@@ -349,6 +303,18 @@ exports.appDetailSubmit = async (request, reply) => {
       row = data[0];
     }
 
+    const documentList = [];
+    if (!row?.requirement_json && !applicationId) {
+      const list = await quote.getList();
+      for (let i = 0; i < list?.length; i++) {
+        documentList.push({
+          idmetadata: list[i].idmetadata,
+          docName: list[i].meta_data_name,
+          required: notRequiredDocuments().includes(list[i].idmetadata) ? false : true,
+        })
+      }
+    }
+
     tableData = {
       applicationId: applicationId || uuid,
       quoteId: row?.quote_id || null,
@@ -366,7 +332,7 @@ exports.appDetailSubmit = async (request, reply) => {
         fatcaCraDetails: fatcaCraDetails || row?.application_json?.fatcaCraDetails,
       },
       quoteJson: row?.quote_json || null,
-      requirementJson: row?.requirement_json || REQUIRED_DOCUMENTS || [],
+      requirementJson: row?.requirement_json || documentList || [],
       premium: row?.premium || 0,
     };
 
