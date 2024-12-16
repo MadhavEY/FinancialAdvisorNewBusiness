@@ -55,17 +55,18 @@ const REQUIRED_DOCUMENTS = [{
 ];
 
 
-const findAndUpdateDocument = async (documents, document) => {
+const findAndUpdateDocument = async (documents, requestDocs) => {
     try {
-        let index = documents.findIndex(item => document.idmetadata === item.idmetadata);
+        for (let i = 0; i < requestDocs?.length; i++) {
+            let index = documents.findIndex(item => requestDocs[i].idmetadata === item.idmetadata);
 
-        if (index !== -1) {
-            documents[index] = {
-                ...documents[index],
-                required: false
-            };
+            if (index !== -1) {
+                documents[index] = {
+                    ...documents[index],
+                    required: false
+                };
+            }
         }
-
         return documents;
     } catch (error) {
         console.error("Util Error:", error);
