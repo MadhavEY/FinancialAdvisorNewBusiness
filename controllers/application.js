@@ -231,7 +231,7 @@ exports.uploadDocument = async (request, reply) => {
   try {
     const {
       applicationId
-    } = request.body?.[0];
+    } = request.body?. [0];
 
     // Find application document list
     const appDetails = await application.getApplicationDetails(applicationId);
