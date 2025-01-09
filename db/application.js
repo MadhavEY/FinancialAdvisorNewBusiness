@@ -69,7 +69,7 @@ const updateApplicationStatus = async (status, appId) => {
 
 const getApplicationDetails = async (appId) => {
     try {
-        let query = `SELECT *, TO_CHAR(updated_at, 'DDth Mon YYYY') FROM newbusiness.application_data WHERE application_id = $1 OR lead_id = $1`;
+        let query = `SELECT *, TO_CHAR(updated_at, 'DDth Mon YYYY') as updated_at FROM newbusiness.application_data WHERE application_id = $1 OR lead_id = $1`;
         const res = await client.query(query, [appId]);
         return res?.rows || [];
     } catch (error) {
