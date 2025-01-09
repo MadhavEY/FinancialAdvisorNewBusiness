@@ -16,6 +16,11 @@ const {
   notRequiredDocuments
 } = require("../utils/application");
 
+const numberFormatoptions = { 
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2 
+};
+
 exports.appTrackerCount = async (request, reply) => {
   try {
     await event.insertEventTransaction(request.isValid);
@@ -29,10 +34,22 @@ exports.appTrackerCount = async (request, reply) => {
 
     reply.status(statusCodes.OK).send(
       responseFormatter(statusCodes.OK, "Data fetched successfully!", {
-        draft,
-        requirementPending,
-        qcUW,
-        decisionProvided,
+        draft: {
+          ...draft,
+          totalpremium: Number(draft.totalpremium).toLocaleString('en', numberFormatoptions)
+        },
+        requirementPending: {
+          ...requirementPending,
+          totalpremium: Number(requirementPending.totalpremium).toLocaleString('en', numberFormatoptions)
+        },
+        qcUW: {
+          ...qcUW,
+          totalpremium: Number(qcUW.totalpremium).toLocaleString('en', numberFormatoptions)
+        },
+        decisionProvided: {
+          ...decisionProvided,
+          totalpremium: Number(decisionProvided.totalpremium).toLocaleString('en', numberFormatoptions)
+        },
       })
     );
   } catch (error) {
