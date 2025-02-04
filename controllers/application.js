@@ -383,3 +383,74 @@ exports.appDetailSubmit = async (request, reply) => {
 };
 
 exports.appSubmission = async (request, reply) => {};
+
+exports.appStepper = async (request, reply) => {
+  try {
+    await event.insertEventTransaction(request.isValid);
+    const { applicationId } = request.body;
+    const response = [];
+    const appDetails = await application.getApplicationDetails(applicationId);
+
+    if (!appDetails?.length) {
+      return reply
+        .status(statusCodes.NOT_FOUND)
+        .send(responseFormatter(statusCodes.NOT_FOUND, "Application not found"));
+    }
+    const steps = [
+      {
+        key: "personalDetails",
+        label: "Person Details",
+        childSteps: [],
+        isCompleted: ["dob", "email", "panNo", "lastName", "mobileNo", "firstName"]
+          .every(key => appDetails[0]?.application_json?.personalDetails[key]?.trim() !== "")
+      },
+      {
+        key: "quoteBI",
+        label: "Quote and BI",
+        childSteps: [],
+        isCompleted: !!appDetails[0]?.quote_json
+      },
+      {
+        key: "analysis",
+        label: "Need Analysis",
+        childSteps: [],
+        isCompleted: !!appDetails[0]?.quote_json
+      },
+      {
+        key: "payment",
+        label: "Payment",
+        childSteps: [],
+        isCompleted: !!appDetails[0]?.application_json?.payoutDetails
+      },
+      {
+        key: "proposalSub",
+        label: "Proposal Submission",
+        childSteps: [
+          { key: "proposalFormFilling", label: "Proposal Form Filling", isCompleted: true },
+          { key: "docUpload", label: "Document Upload", isCompleted: appDetails[0]?.requirement_json?.some(item => item.required === true) ? false : true },
+          { key: "pivc", label: "PIVC", isCompleted: true },
+          { key: "custConfReport", label: "Customer Confidentiality Report", isCompleted: true },
+          { key: "reviewConsent", label: "Review and Consent", isCompleted: true }
+        ],
+        isCompleted: () => {
+          return this.childSteps.every(child => child.isCompleted);
+        }
+      }
+    ];
+
+    const processedSteps = steps.map(step => ({
+      ...step,
+      isCompleted: step.key === "proposalSub" ? step.childSteps.every(child => child.isCompleted) : step.isCompleted
+    }));
+
+    response.push(...processedSteps);
+
+    return reply.status(statusCodes.OK).send(response);
+
+  } catch (error) {
+    await event.insertEventTransaction(request.inValid);
+    return reply.status(statusCodes.INTERNAL_SERVER_ERROR).send(
+      responseFormatter(statusCodes.INTERNAL_SERVER_ERROR, "Internal server error occurred", { error: error.message })
+    );
+  }
+};
