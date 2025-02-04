@@ -384,13 +384,16 @@ exports.appDetailSubmit = async (request, reply) => {
 
 exports.appSubmission = async (request, reply) => {};
 
+
 exports.appStepper = async (request, reply) => {
   try {
     await event.insertEventTransaction(request.isValid);
     const { applicationId } = request.body;
     const response = [];
     const appDetails = await application.getApplicationDetails(applicationId);
-
+    function isNotNullOrEmpty(value) {
+      return value && value.trim() !== "";
+    }
     if (!appDetails?.length) {
       return reply
         .status(statusCodes.NOT_FOUND)
@@ -401,32 +404,42 @@ exports.appStepper = async (request, reply) => {
         key: "personalDetails",
         label: "Personal Details",
         childSteps: [],
-        isCompleted: ["dob", "email", "panNo", "lastName", "mobileNo", "firstName"]
-          .every(key => appDetails[0]?.application_json?.personalDetails[key]?.trim() !== "")
+        isCompleted: Object.keys(appDetails[0]?.application_json?.personalDetails || {}).length > 0 &&
+        ["dob", "email", "lastName", "mobileNo", "firstName"]
+          .every(key => appDetails[0]?.application_json?.personalDetails?.[key]?.trim() !== "" )    //"panNo"
       },
       {
         key: "quoteBI",
         label: "Quote and BI",
         childSteps: [],
-        isCompleted: !!appDetails[0]?.quote_json
+        // isCompleted: !!appDetails[0]?.quote_json
+        isCompleted: (Object.keys(appDetails[0]?.quote_json || {}).length > 0 && 
+        appDetails[0]?.quote_json["BIJson"]?.trim() !== "" && appDetails[0]?.quote_json["Status"]?.trim() === "Success")
       },
       {
         key: "analysis",
         label: "Need Analysis",
         childSteps: [],
-        isCompleted: !!appDetails[0]?.quote_json
+        isCompleted: false
+        // isCompleted: !!appDetails[0]?.quote_json
       },
       {
         key: "payment",
         label: "Payment",
         childSteps: [],
-        isCompleted: !!appDetails[0]?.application_json?.payoutDetails
+        // isCompleted: !!appDetails[0]?.application_json?.payoutDetails
+        isCompleted: Object.keys(appDetails[0]?.application_json?.payoutDetails || {}).length > 0 &&
+         ["ifscCode", "accountName", "accountType", "accountHolderName"]
+        .every(key => appDetails[0]?.application_json?.payoutDetails?.[key]?.trim() !== "")
       },
       {
         key: "proposalSub",
         label: "Proposal Submission",
         childSteps: [
-          { key: "proposalFormFilling", label: "Proposal Form Filling", isCompleted: true },
+          { key: "proposalFormFilling", label: "Proposal Form Filling", isCompleted: ["agentCode", "agentName", "branchLocation"].every(key => {
+              const agentDetailValue = appDetails[0]?.application_json?.agentDetails?.[key];
+              return agentDetailValue && agentDetailValue.trim() !== ""; // Check for null, undefined, or empty string
+            })},
           { key: "docUpload", label: "Document Upload", isCompleted: appDetails[0]?.requirement_json?.some(item => item.required === true) ? false : true },
           { key: "pivc", label: "PIVC", isCompleted: true },
           { key: "custConfReport", label: "Customer Confidentiality Report", isCompleted: true },
@@ -438,10 +451,22 @@ exports.appStepper = async (request, reply) => {
       }
     ];
 
-    const processedSteps = steps.map(step => ({
-      ...step,
-      isCompleted: step.key === "proposalSub" ? step.childSteps.every(child => child.isCompleted) : step.isCompleted
-    }));
+    const processedSteps = steps.map((step) => {
+      if (step.key === "quoteBI" && step.isCompleted) {
+        const analysisStep = steps.find(s => s.key === "analysis");
+        if (analysisStep) {
+          analysisStep.isCompleted = true; 
+        }
+      }
+
+      if (step.key === "proposalSub") {
+        return {
+          ...step,
+          isCompleted: step.childSteps.every(child => child.isCompleted)
+        };
+      }
+      return step;
+    });
 
     response.push(...processedSteps);
 
