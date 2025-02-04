@@ -55,6 +55,12 @@ async function applicationRoutes(fastify) {
         },
         application.appSubmission
     );
+    fastify.post(
+        "/stepper", {
+            preHandler: [authentication, validation]
+        },
+        application.appStepper
+    );
 }
 
 module.exports = applicationRoutes;

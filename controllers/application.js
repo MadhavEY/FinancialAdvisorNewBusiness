@@ -399,7 +399,7 @@ exports.appStepper = async (request, reply) => {
     const steps = [
       {
         key: "personalDetails",
-        label: "Person Details",
+        label: "Personal Details",
         childSteps: [],
         isCompleted: ["dob", "email", "panNo", "lastName", "mobileNo", "firstName"]
           .every(key => appDetails[0]?.application_json?.personalDetails[key]?.trim() !== "")
