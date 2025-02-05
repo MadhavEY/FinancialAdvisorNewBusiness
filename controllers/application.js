@@ -383,3 +383,99 @@ exports.appDetailSubmit = async (request, reply) => {
 };
 
 exports.appSubmission = async (request, reply) => {};
+
+
+exports.appStepper = async (request, reply) => {
+  try {
+    await event.insertEventTransaction(request.isValid);
+    const { applicationId } = request.body;
+    const response = [];
+    const appDetails = await application.getApplicationDetails(applicationId);
+    function isNotNullOrEmpty(value) {
+      return value && value.trim() !== "";
+    }
+    if (!appDetails?.length) {
+      return reply
+        .status(statusCodes.NOT_FOUND)
+        .send(responseFormatter(statusCodes.NOT_FOUND, "Application not found"));
+    }
+    const steps = [
+      {
+        key: "personalDetails",
+        label: "Personal Details",
+        childSteps: [],
+        isCompleted: Object.keys(appDetails[0]?.application_json?.personalDetails || {}).length > 0 &&
+        ["dob", "email", "lastName", "mobileNo", "firstName"]
+          .every(key => appDetails[0]?.application_json?.personalDetails?.[key]?.trim() !== "" )    //"panNo"
+      },
+      {
+        key: "quoteBI",
+        label: "Quote and BI",
+        childSteps: [],
+        // isCompleted: !!appDetails[0]?.quote_json
+        isCompleted: (Object.keys(appDetails[0]?.quote_json || {}).length > 0 && 
+        appDetails[0]?.quote_json["BIJson"]?.trim() !== "" && appDetails[0]?.quote_json["Status"]?.trim() === "Success")
+      },
+      {
+        key: "analysis",
+        label: "Need Analysis",
+        childSteps: [],
+        isCompleted: false
+        // isCompleted: !!appDetails[0]?.quote_json
+      },
+      {
+        key: "payment",
+        label: "Payment",
+        childSteps: [],
+        // isCompleted: !!appDetails[0]?.application_json?.payoutDetails
+        isCompleted: Object.keys(appDetails[0]?.application_json?.payoutDetails || {}).length > 0 &&
+         ["ifscCode", "accountName", "accountType", "accountHolderName"]
+        .every(key => appDetails[0]?.application_json?.payoutDetails?.[key]?.trim() !== "")
+      },
+      {
+        key: "proposalSub",
+        label: "Proposal Submission",
+        childSteps: [
+          { key: "proposalFormFilling", label: "Proposal Form Filling", isCompleted: ["agentCode", "agentName", "branchLocation"].every(key => {
+              const agentDetailValue = appDetails[0]?.application_json?.agentDetails?.[key];
+              return agentDetailValue && agentDetailValue.trim() !== ""; // Check for null, undefined, or empty string
+            })},
+          { key: "docUpload", label: "Document Upload", isCompleted: appDetails[0]?.requirement_json?.some(item => item.required === true) ? false : true },
+          { key: "pivc", label: "PIVC", isCompleted: true },
+          { key: "custConfReport", label: "Customer Confidentiality Report", isCompleted: true },
+          { key: "reviewConsent", label: "Review and Consent", isCompleted: true }
+        ],
+        isCompleted: () => {
+          return this.childSteps.every(child => child.isCompleted);
+        }
+      }
+    ];
+
+    const processedSteps = steps.map((step) => {
+      if (step.key === "quoteBI" && step.isCompleted) {
+        const analysisStep = steps.find(s => s.key === "analysis");
+        if (analysisStep) {
+          analysisStep.isCompleted = true; 
+        }
+      }
+
+      if (step.key === "proposalSub") {
+        return {
+          ...step,
+          isCompleted: step.childSteps.every(child => child.isCompleted)
+        };
+      }
+      return step;
+    });
+
+    response.push(...processedSteps);
+
+    return reply.status(statusCodes.OK).send(response);
+
+  } catch (error) {
+    await event.insertEventTransaction(request.inValid);
+    return reply.status(statusCodes.INTERNAL_SERVER_ERROR).send(
+      responseFormatter(statusCodes.INTERNAL_SERVER_ERROR, "Internal server error occurred", { error: error.message })
+    );
+  }
+};

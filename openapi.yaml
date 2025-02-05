@@ -991,3 +991,108 @@ paths:
                   message:
                     type: string
                     example: "Unauthorized access."
+                    
+  /application/stepper:
+   post:
+    summary: Process Application Steps
+    description: Processes the application steps based on the provided application ID and step statuses.
+    operationId: appStepper
+    parameters:
+      - name: authorization
+        in: header
+        required: true
+        description: Bearer token for authorization.
+        schema:
+          type: string
+          example: "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIs..."
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - applicationId
+            properties:
+              applicationId:
+                type: string
+                description: Unique ID of the application.
+                example: "APPEY00003"
+    responses:
+      "200":
+        description: Successfully processed the application steps
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                properties:
+                  key:
+                    type: string
+                    description: Step key identifier
+                    example: "personalDetails"
+                  label:
+                    type: string
+                    description: Label for the step
+                    example: "Personal Details"
+                  isCompleted:
+                    type: boolean
+                    description: Indicates whether the step is completed or not
+                    example: true
+                  childSteps:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        key:
+                          type: string
+                          description: Child step key identifier
+                          example: "proposalFormFilling"
+                        label:
+                          type: string
+                          description: Label for the child step
+                          example: "Proposal Form Filling"
+                        isCompleted:
+                          type: boolean
+                          description: Indicates whether the child step is completed or not
+                          example: false
+      "400":
+        description: Invalid request - Missing or invalid applicationId
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  description: Error message
+                  example: "Application ID is required"
+      "404":
+        description: Application not found
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  description: Error message
+                  example: "Application not found"
+      "500":
+        description: Internal server error
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  description: Error message
+                  example: "Internal server error occurred"
+                error:
+                  type: string
+                  description: Error details
+                  example: "Database connection failed"
+
+  
