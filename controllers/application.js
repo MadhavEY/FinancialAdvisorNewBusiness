@@ -470,7 +470,15 @@ exports.appStepper = async (request, reply) => {
 
     response.push(...processedSteps);
 
-    return reply.status(statusCodes.OK).send(response);
+    reply
+    .status(statusCodes.OK)
+    .send(
+      responseFormatter(
+        statusCodes.OK,
+        "Application Process Journey fetched successfully!",
+        response
+      )
+    );
 
   } catch (error) {
     await event.insertEventTransaction(request.inValid);
