@@ -26,7 +26,7 @@ exports.saveQuote = async (request, reply) => {
             responseFormatter(
               statusCodes.OK,
               "Quote saved successfully",
-              "https://salesasset.blob.core.windows.net/salesassetblob/80000051773.pdf?sv=2025-01-05&se=2124-12-07T17%3A12%3A19Z&sr=b&sp=r&sig=fI4iIF15gRixnLvIg94Nn44%2FJEmPe4UuRQSE8FPhEII%3D"
+              "https://salesassettest.blob.core.windows.net/salesasset/80000051773.pdf?sv=2025-01-05&se=2125-04-21T13%3A06%3A13Z&sr=b&sp=r&sig=eXvR%2FLjlGs6R6tcmChI3O1qlvcIF1OExRmBvyD5d8nI%3D"
             )
           );
       } else {
@@ -59,7 +59,7 @@ exports.saveQuote = async (request, reply) => {
             responseFormatter(
               statusCodes.OK,
               "Quote saved successfully",
-              "https://salesasset.blob.core.windows.net/salesassetblob/80000051773.pdf?sv=2025-01-05&se=2124-12-07T17%3A12%3A19Z&sr=b&sp=r&sig=fI4iIF15gRixnLvIg94Nn44%2FJEmPe4UuRQSE8FPhEII%3D"
+              "https://salesassettest.blob.core.windows.net/salesasset/80000051773.pdf?sv=2025-01-05&se=2125-04-21T13%3A06%3A13Z&sr=b&sp=r&sig=eXvR%2FLjlGs6R6tcmChI3O1qlvcIF1OExRmBvyD5d8nI%3D"
             )
           );
       } else {
