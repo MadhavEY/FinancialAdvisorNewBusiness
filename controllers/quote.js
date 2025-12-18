@@ -26,7 +26,7 @@ exports.saveQuote = async (request, reply) => {
             responseFormatter(
               statusCodes.OK,
               "Quote saved successfully",
-              "https://salesassettest.blob.core.windows.net/salesasset/80000051773.pdf?sv=2025-01-05&se=2125-04-21T13%3A06%3A13Z&sr=b&sp=r&sig=eXvR%2FLjlGs6R6tcmChI3O1qlvcIF1OExRmBvyD5d8nI%3D"
+              "https://salesassetdemo.blob.core.windows.net/salesasset/80000051773.pdf?sp=r&st=2025-12-18T16:06:48Z&se=2026-12-19T00:21:48Z&spr=https&sv=2024-11-04&sr=b&sig=bVcAEEDHpA1jQ9r5aCPZMHt30Ys0SE1t9KZsnJRZ7oI%3D"
             )
           );
       } else {
@@ -59,7 +59,7 @@ exports.saveQuote = async (request, reply) => {
             responseFormatter(
               statusCodes.OK,
               "Quote saved successfully",
-              "https://salesassettest.blob.core.windows.net/salesasset/80000051773.pdf?sv=2025-01-05&se=2125-04-21T13%3A06%3A13Z&sr=b&sp=r&sig=eXvR%2FLjlGs6R6tcmChI3O1qlvcIF1OExRmBvyD5d8nI%3D"
+              "https://salesassetdemo.blob.core.windows.net/salesasset/80000051773.pdf?sp=r&st=2025-12-18T16:06:48Z&se=2026-12-19T00:21:48Z&spr=https&sv=2024-11-04&sr=b&sig=bVcAEEDHpA1jQ9r5aCPZMHt30Ys0SE1t9KZsnJRZ7oI%3D"
             )
           );
       } else {
@@ -81,3 +81,5 @@ exports.saveQuote = async (request, reply) => {
     );
   }
 };
+
+ 
